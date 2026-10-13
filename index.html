@@ -18,124 +18,118 @@ button.alt{background:transparent;color:var(--ac)}button:disabled{opacity:.5}but
 </style></head><body>
 <header><h1>Plain<span>ly</span></h1><p class="sub">Turn stiff or awkward text into clear writing in your own style. Meaning and facts stay the same.</p></header>
 <main>
-<div class="card"><b>Privacy:</b> your text is sent to the AI provider this site is configured with, to be rewritten. This site does not store it. Progress is saved only in this browser (you can turn that off in Settings).</div>
+<div class="card"><b>Privacy:</b> your text is sent to the AI provider this site is configured with, to be rewritten. This site does not store it. Progress is saved only in this browser (you can turn that off in Settings). Plainly improves clarity and flow. It cannot guarantee how any AI detector will score a text, so always read and edit the result yourself.</div>
 <div class="card">
- <div class="row">
-  <label>Style <select id="style"><option value="natural">Natural &amp; clear</option><option value="academic">Academic</option><option value="simple">Simple English</option><option value="professional">Professional</option><option value="conversational">Conversational</option><option value="personal">My writing style</option></select></label>
-  <label>Strength <select id="strength"><option value="light">Light edit</option><option value="balanced" selected>Balanced</option><option value="substantial">Substantial</option></select></label>
-  <label>Upload .txt <input type="file" id="file" accept=".txt,text/plain"></label>
- </div>
- <details><summary>My writing sample (optional, used for “My writing style”)</summary><textarea id="sample" style="min-height:110px" placeholder="Paste 150–400 words you wrote yourself"></textarea></details>
- <details><summary>Settings</summary><div class="row">
-  <label>Output language <input type="text" id="lang" placeholder="same as input"></label>
-  <label>Access code <input type="text" id="code" placeholder="if the site owner set one"></label>
-  <label><input type="checkbox" id="save" checked> Save progress in this browser</label>
-  <button class="alt" id="wipe">Delete saved data</button></div></details>
+<div class="row">
+<label>Style <select id="style"><option value="natural">Natural &amp; clear</option><option value="academic">Academic</option><option value="simple">Simple English</option><option value="professional">Professional</option><option value="conversational">Conversational</option><option value="personal">My writing style</option></select></label>
+<label>Strength <select id="strength"><option value="light">Light edit</option><option value="balanced" selected>Balanced</option><option value="substantial">Substantial</option></select></label>
+<label>Upload .txt <input type="file" id="file" accept=".txt,text/plain"></label>
+</div>
+<details><summary>My writing sample (optional, used for “My writing style”)</summary><textarea id="sample" style="min-height:110px" placeholder="Paste 150–400 words you wrote yourself"></textarea></details>
+<details><summary>Settings</summary><div class="row">
+<label>Output language <input type="text" id="lang" placeholder="same as input"></label>
+<label>Access code <input type="text" id="code" placeholder="if the site owner set one"></label>
+<label><input type="checkbox" id="save" checked> Save progress in this browser</label>
+<button class="alt" id="wipe">Delete saved data</button></div></details>
 </div>
 <div class="grid">
- <div class="card"><b>Original</b> <small id="inWc"></small><textarea id="input" placeholder="Paste text here (up to ~100,000 words)"></textarea>
-  <div class="row"><button id="go">Rewrite</button><button class="alt" id="cancel" disabled>Cancel</button><button class="alt" id="resume" hidden>Resume saved job</button><button class="alt" id="clearIn">Clear</button></div></div>
- <div class="card"><b>Rewritten (editable)</b> <small id="outWc"></small><textarea id="output" aria-live="polite"></textarea>
-  <div class="row"><button class="alt" id="copy">Copy</button><button class="alt" id="dl">Download .txt</button><button class="alt" id="clearOut">Clear</button></div></div>
+<div class="card"><b>Original</b> <small id="inWc"></small><textarea id="input" placeholder="Paste text here (up to ~100,000 words)"></textarea>
+<div class="row"><button id="go">Rewrite</button><button class="alt" id="cancel" disabled>Cancel</button><button class="alt" id="resume" hidden>Resume saved job</button><button class="alt" id="clearIn">Clear</button></div></div>
+<div class="card"><b>Rewritten (editable)</b> <small id="outWc"></small><textarea id="output" aria-live="polite"></textarea>
+<div class="row"><button class="alt" id="copy">Copy</button><button class="alt" id="dl">Download .txt</button><button class="alt" id="clearOut">Clear</button></div></div>
 </div>
 <div class="card"><div class="bar"><i id="bar"></i></div><p id="status" role="status">Ready.</p><div id="log"></div></div>
 </main>
 <script>
-
 /* Built-in chunking utility: no external chunk.js file required. */
 window.Chunker = (() => {
-  function countWords(text) {
-    return (String(text || "").trim().match(/\S+/g) || []).length;
-  }
-
-  function chunkText(text, maxWords = 500) {
-    const input = String(text || "").trim();
-    if (!input) return [];
-    const paragraphs = input.split(/\n\s*\n/);
-    const chunks = [];
-    let buffer = [];
-    let bufferWords = 0;
-
-    function flush() {
-      if (buffer.length) {
-        chunks.push(buffer.join("\n\n"));
-        buffer = [];
-        bufferWords = 0;
-      }
-    }
-
-    for (const paragraph of paragraphs) {
-      const p = paragraph.trim();
-      if (!p) continue;
-      const n = countWords(p);
-
-      if (n > maxWords) {
-        flush();
-        const words = p.split(/\s+/);
-        for (let i = 0; i < words.length; i += maxWords) {
-          chunks.push(words.slice(i, i + maxWords).join(" "));
-        }
-        continue;
-      }
-
-      if (buffer.length && bufferWords + n > maxWords) flush();
-      buffer.push(p);
-      bufferWords += n;
-    }
-
-    flush();
-    return chunks;
-  }
-
-  return { countWords, chunkText };
+function countWords(text) {
+return (String(text || "").trim().match(/\S+/g) || []).length;
+}
+function chunkText(text, maxWords = 500) {
+const input = String(text || "").trim();
+if (!input) return [];
+const paragraphs = input.split(/\n\s*\n/);
+const chunks = [];
+let buffer = [];
+let bufferWords = 0;
+function flush() {
+if (buffer.length) {
+chunks.push(buffer.join("\n\n"));
+buffer = [];
+bufferWords = 0;
+}
+}
+for (const paragraph of paragraphs) {
+const p = paragraph.trim();
+if (!p) continue;
+const n = countWords(p);
+if (n > maxWords) {
+flush();
+const words = p.split(/\s+/);
+for (let i = 0; i < words.length; i += maxWords) {
+chunks.push(words.slice(i, i + maxWords).join(" "));
+}
+continue;
+}
+if (buffer.length && bufferWords + n > maxWords) flush();
+buffer.push(p);
+bufferWords += n;
+}
+flush();
+return chunks;
+}
+return { countWords, chunkText };
 })();
-
 </script>
 <script>
-const $=id=>document.getElementById(id),wc=Chunker.countWords,KEY="plainly.v1";
+const $=id=>document.getElementById(id),wc=Chunker.countWords,KEY="plainly.v1",CHUNK_WORDS=350;
 let chunks=[],results=[],ctl=null;
 const sleep=(ms,s)=>new Promise((r,j)=>{const t=setTimeout(r,ms);s.addEventListener("abort",()=>{clearTimeout(t);j(new Error("cancelled"))});});
 function log(m,e){const d=document.createElement("div");d.textContent=m;if(e)d.className="err";$("log").prepend(d);}
 function counts(){$("inWc").textContent=wc($("input").value)+" words";$("outWc").textContent=wc($("output").value)+" words";}
 function assemble(){$("output").value=chunks.map((c,i)=>results[i]??c).join("\n\n");counts();}
 function persist(){if(!$("save").checked)return localStorage.removeItem(KEY);
-  try{localStorage.setItem(KEY,JSON.stringify({chunks,results,input:$("input").value}));}catch{log("Browser storage is full; progress not saved.",1);}}
+try{localStorage.setItem(KEY,JSON.stringify({chunks,results,input:$("input").value}));}catch{log("Browser storage is full; progress not saved.",1);}}
 function cfg(){return{style:$("style").value,strength:$("strength").value,language:$("lang").value,sample:$("sample").value};}
+/* Last ~80 words of the previous part, so each part joins smoothly onto the one before it. */
+function ctxFor(i){if(i<1)return"";const p=String(results[i-1]??chunks[i-1]??"").trim().split(/\s+/);return p.slice(-80).join(" ");}
 async function one(i,s){
-  for(let a=1;a<=3;a++){
-    try{
-      const r=await fetch("/api/rewrite",{method:"POST",signal:s,headers:{"Content-Type":"application/json","x-access-code":$("code").value},body:JSON.stringify({...cfg(),text:chunks[i]})});
-      const d=await r.json().catch(()=>({error:"Bad response from server."}));
-      if(r.ok)return d.text;
-      if(r.status===400||r.status===401||r.status===500)throw Object.assign(new Error(d.error),{fatal:1});
-      log(`Part ${i+1}: ${d.error} (try ${a}/3)`,1);await sleep(r.status===429?20000:3000*a,s);
-    }catch(e){if(e.fatal||e.message==="cancelled"||s.aborted)throw e;log(`Part ${i+1}: ${e.message} (try ${a}/3)`,1);await sleep(3000*a,s);}
-  }
-  return null;}
+for(let a=1;a<=3;a++){
+try{
+const r=await fetch("/api/rewrite",{method:"POST",signal:s,headers:{"Content-Type":"application/json","x-access-code":$("code").value},body:JSON.stringify({...cfg(),text:chunks[i],context:ctxFor(i),part:i+1,total:chunks.length})});
+const d=await r.json().catch(()=>({error:"Bad response from server (status "+r.status+")."}));
+if(r.ok)return d.text;
+if(r.status===400||r.status===401||r.status===500)throw Object.assign(new Error(d.error||"Server error "+r.status),{fatal:1});
+const ra=Number(r.headers.get("retry-after"));
+log(`Part ${i+1}: ${d.error} (try ${a}/3)`,1);await sleep(r.status===429?(ra>0?Math.min(ra,60)*1000:20000):3000*a,s);
+}catch(e){if(e.fatal||e.message==="cancelled"||s.aborted)throw e;log(`Part ${i+1}: ${e.message} (try ${a}/3)`,1);await sleep(3000*a,s);}
+}
+return null;}
 async function run(){
-  ctl=new AbortController();$("go").disabled=true;$("cancel").disabled=false;let failed=0;
-  try{for(let i=0;i<chunks.length;i++){
-    if(results[i]!=null)continue;
-    $("status").textContent=`Working on part ${i+1} of ${chunks.length}…`;
-    const t=await one(i,ctl.signal);if(t==null){failed++;log(`Part ${i+1} failed; original text kept.`,1);}else results[i]=t;
-    $("bar").style.width=(100*(i+1)/chunks.length)+"%";assemble();persist();}
-    $("status").textContent=failed?`Done with ${failed} part(s) left original. Press Resume to retry them.`:"Finished. Review and edit before exporting.";
-  }catch(e){$("status").textContent=e.message==="cancelled"?"Cancelled. Finished parts are kept; press Resume to continue.":"Stopped: "+e.message;if(e.message!=="cancelled")log(e.message,1);}
-  $("go").disabled=false;$("cancel").disabled=true;$("resume").hidden=!chunks.some((_,i)=>results[i]==null);}
+ctl=new AbortController();$("go").disabled=true;$("cancel").disabled=false;let failed=0;
+try{for(let i=0;i<chunks.length;i++){
+if(results[i]!=null)continue;
+$("status").textContent=`Working on part ${i+1} of ${chunks.length}…`;
+const t=await one(i,ctl.signal);if(t==null){failed++;log(`Part ${i+1} failed; original text kept.`,1);}else results[i]=t;
+$("bar").style.width=(100*(i+1)/chunks.length)+"%";assemble();persist();}
+$("status").textContent=failed?`Done with ${failed} part(s) left original. Press Resume to retry them.`:"Finished. Review and edit before exporting.";
+}catch(e){$("status").textContent=e.message==="cancelled"?"Cancelled. Finished parts are kept; press Resume to continue.":"Stopped: "+e.message;if(e.message!=="cancelled")log(e.message,1);}
+$("go").disabled=false;$("cancel").disabled=true;$("resume").hidden=!chunks.some((_,i)=>results[i]==null);}
 $("go").onclick=()=>{const t=$("input").value;if(!wc(t))return $("status").textContent="Please paste some text first.";
-  if(wc(t)>120000)return $("status").textContent="Too long: please keep it under 120,000 words.";
-  chunks=Chunker.chunkText(t,500);results=[];$("log").textContent="";$("bar").style.width="0";assemble();run();};
+if(wc(t)>120000)return $("status").textContent="Too long: please keep it under 120,000 words.";
+chunks=Chunker.chunkText(t,CHUNK_WORDS);results=[];$("log").textContent="";$("bar").style.width="0";assemble();run();};
 $("resume").onclick=()=>{$("resume").hidden=true;run();};
 $("cancel").onclick=()=>ctl&&ctl.abort();
 $("file").onchange=async e=>{const f=e.target.files[0];if(!f)return;
-  if(!/\.txt$/i.test(f.name)&&f.type!=="text/plain")return $("status").textContent="Only .txt files are supported.";
-  if(f.size>3e6)return $("status").textContent="File too large (max 3 MB).";$("input").value=await f.text();counts();};
+if(!/\.txt$/i.test(f.name)&&f.type!=="text/plain")return $("status").textContent="Only .txt files are supported.";
+if(f.size>3e6)return $("status").textContent="File too large (max 3 MB).";$("input").value=await f.text();counts();};
 $("copy").onclick=async()=>{try{await navigator.clipboard.writeText($("output").value);$("status").textContent="Copied.";}catch{$("output").select();$("status").textContent="Press copy on your keyboard.";}};
-$("dl").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([$("output").value],{type:"text/plain"}));a.download="rewritten.txt";a.click();};
+$("dl").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([$("output").value],{type:"text/plain"}));a.download="rewritten.txt";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);};
 $("clearIn").onclick=()=>{$("input").value="";counts();};$("clearOut").onclick=()=>{$("output").value="";counts();};
 $("wipe").onclick=()=>{localStorage.removeItem(KEY);$("status").textContent="Saved data deleted.";};
 $("input").oninput=$("output").oninput=counts;
 try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&s.chunks?.length){chunks=s.chunks;results=s.results;$("input").value=s.input;assemble();
-  $("resume").hidden=!chunks.some((_,i)=>results[i]==null);$("status").textContent="Restored your last job.";}}catch{}
+$("resume").hidden=!chunks.some((_,i)=>results[i]==null);$("status").textContent="Restored your last job.";}}catch{}
 counts();
 </script></body></html>
